@@ -37,7 +37,6 @@ namespace Gandalf.Contracts.DividendPoolContract
         {
             AssertSenderIsOwner();
             var endBlock = State.EndBlock.Value;
-            Assert(endBlock > 0, "Not config end block.");
             Assert(Context.CurrentHeight > endBlock && input.StartBlock > endBlock, "Not finished");
             MassUpdatePools(new Empty());
             var tokenLength = input.Tokens.Count;
