@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core;
 using AElf.Sdk.CSharp;
@@ -37,7 +36,9 @@ namespace Gandalf.Contracts.DividendPoolContract
         {
             AssertSenderIsOwner();
             var endBlock = State.EndBlock.Value;
-            Assert(Context.CurrentHeight > endBlock && input.StartBlock > endBlock, "Not finished");
+            Assert(
+                Context.CurrentHeight > endBlock && input.StartBlock > endBlock &&
+                input.StartBlock > Context.CurrentHeight, "Not finished");
             MassUpdatePools(new Empty());
             var tokenLength = input.Tokens.Count;
             for (int i = 0; i < tokenLength; i++)
