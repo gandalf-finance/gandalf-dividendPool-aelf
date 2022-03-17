@@ -151,6 +151,11 @@ namespace Gandalf.Contracts.DividendPoolContract
             State.TotalAllocPoint.Value = State.TotalAllocPoint.Value
                 .Sub(State.PoolInfo.Value.PoolList[input.Pid].AllocPoint).Add(input.AllocationPoint);
             State.PoolInfo.Value.PoolList[input.Pid].AllocPoint = input.AllocationPoint;
+            Context.Fire(new SetPool
+            {
+                Pid = input.Pid,
+                AllocationPoint = input.AllocationPoint
+            });
             return new Empty();
         }
 
