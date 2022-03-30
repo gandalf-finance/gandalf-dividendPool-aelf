@@ -206,13 +206,16 @@ namespace Gandalf.Contracts.DividendPoolContract
                         var realAmount = SafeTransfer(Context.Sender, pendingAmount, token,
                             pool.LpToken.Equals(token) ? pool.TotalAmount : new BigIntValue(0));
 
-                        Context.Fire(new Harvest
+                        if (realAmount>0)
                         {
-                            Amount = realAmount,
-                            To = Context.Sender,
-                            Token = token,
-                            Pid = input.Pid
-                        });
+                            Context.Fire(new Harvest
+                            {
+                                Amount = realAmount,
+                                To = Context.Sender,
+                                Token = token,
+                                Pid = input.Pid
+                            });
+                        }
                     }
 
                     State.RewardDebt[input.Pid][Context.Sender][token] = user.Amount
@@ -275,13 +278,16 @@ namespace Gandalf.Contracts.DividendPoolContract
                         var realAmount = SafeTransfer(Context.Sender, pendingAmount, token,
                             pool.LpToken.Equals(token) ? pool.TotalAmount : new BigIntValue(0));
 
-                        Context.Fire(new Harvest
+                        if (realAmount>0)
                         {
-                            Amount = realAmount,
-                            To = Context.Sender,
-                            Token = token,
-                            Pid = input.Pid
-                        });
+                            Context.Fire(new Harvest
+                            {
+                                Amount = realAmount,
+                                To = Context.Sender,
+                                Token = token,
+                                Pid = input.Pid
+                            });
+                        }
                     }
 
                     State.RewardDebt[input.Pid][Context.Sender][token] = user.Amount
@@ -342,12 +348,16 @@ namespace Gandalf.Contracts.DividendPoolContract
 
             var realAmount = amount > tokenBalance ? tokenBalance : amount;
 
-            State.TokenContract.Transfer.Send(new TransferInput
+            if (realAmount > 0)
             {
-                To = to,
-                Amount = Convert.ToInt64(realAmount.Value),
-                Symbol = token
-            });
+                State.TokenContract.Transfer.Send(new TransferInput
+                {
+                    To = to,
+                    Amount = Convert.ToInt64(realAmount.Value),
+                    Symbol = token
+                });
+            }
+
             return realAmount;
         }
 
