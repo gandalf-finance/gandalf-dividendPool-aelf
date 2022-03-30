@@ -36,7 +36,7 @@ namespace Gandalf.Contracts.DividendPoolContract
         {
             AssertSenderIsOwner();
             var endBlock = State.EndBlock.Value;
-            Assert(input.StartBlock > Context.CurrentHeight, $"Invalid StartBlock.");
+            Assert(input.StartBlock > Context.CurrentHeight, $"Invalid startblock {input.StartBlock}.");
             Assert(Context.CurrentHeight > endBlock && input.StartBlock > endBlock, "Not finished.");
 
             MassUpdatePools(new Empty());
@@ -203,12 +203,12 @@ namespace Gandalf.Contracts.DividendPoolContract
 
                     if (pendingAmount > 0)
                     {
-                        SafeTransfer(Context.Sender, pendingAmount, token,
+                        var realAmount = SafeTransfer(Context.Sender, pendingAmount, token,
                             pool.LpToken.Equals(token) ? pool.TotalAmount : new BigIntValue(0));
 
                         Context.Fire(new Harvest
                         {
-                            Amount = pendingAmount,
+                            Amount = realAmount,
                             To = Context.Sender,
                             Token = token,
                             Pid = input.Pid
@@ -272,12 +272,12 @@ namespace Gandalf.Contracts.DividendPoolContract
 
                     if (pendingAmount > 0)
                     {
-                        SafeTransfer(Context.Sender, pendingAmount, token,
+                        var realAmount = SafeTransfer(Context.Sender, pendingAmount, token,
                             pool.LpToken.Equals(token) ? pool.TotalAmount : new BigIntValue(0));
 
                         Context.Fire(new Harvest
                         {
-                            Amount = pendingAmount,
+                            Amount = realAmount,
                             To = Context.Sender,
                             Token = token,
                             Pid = input.Pid
@@ -327,7 +327,7 @@ namespace Gandalf.Contracts.DividendPoolContract
         }
 
 
-        private void SafeTransfer(
+        private BigIntValue SafeTransfer(
             Address to,
             BigIntValue amount,
             string token,
@@ -348,6 +348,7 @@ namespace Gandalf.Contracts.DividendPoolContract
                 Amount = Convert.ToInt64(realAmount.Value),
                 Symbol = token
             });
+            return realAmount;
         }
 
 
