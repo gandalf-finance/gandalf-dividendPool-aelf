@@ -8,25 +8,30 @@ namespace Gandalf.Contracts.DividendPoolContract
 {
     public partial class DividendPoolContract
     {
-        /**
-         * PoolLength
-         */
+        
+        /// <summary>
+        ///  Get pool length.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override Int32Value PoolLength(Empty input)
         {
             return new Int32Value
             {
-                Value = State.PoolInfo.Value.PoolList.Count
+                Value = State.PoolInfoList.Value.Value.Count
             };
         }
 
-        /**
-         * Pending
-         */
+        /// <summary>
+        /// Get pending reward.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override PendingOutput Pending(PendingInput input)
         {
-            var pool = State.PoolInfo.Value.PoolList[input.Pid];
+            var pool = State.PoolInfoList.Value.Value[input.Pid];
             var user = State.UserInfo[input.Pid][input.User];
-            var tokenList = State.TokenList.Value.Tokens;
+            var tokenList = State.TokenList.Value.Value;
 
             var pendingOutput = new PendingOutput();
 
@@ -56,74 +61,91 @@ namespace Gandalf.Contracts.DividendPoolContract
             return pendingOutput;
         }
 
-        /**
-         * GetTokenListLength
-         */
+        /// <summary>
+        /// Get token list length.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override Int32Value GetTokenListLength(Empty input)
         {
             return new Int32Value
             {
-                Value = State.TokenList.Value.Tokens.Count
+                Value = State.TokenList.Value.Value.Count
             };
         }
 
-        /**
-         * IsTokenList
-         */
+        /// <summary>
+        /// Judge whether the token is in the reward token list.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override BoolValue IsTokenList(Token input)
         {
             return new BoolValue
             {
-                Value = State.TokenList.Value.Tokens.Contains(input.TokenSymbol)
+                Value = State.TokenList.Value.Value.Contains(input.Value)
             };
         }
 
-        /**
-         * owner
-         */
+        /// <summary>
+        /// Get the owner of the contract.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override Address Owner(Empty input)
         {
             return State.Owner.Value;
         }
 
-        /**
-         *  Get token by index from token list.
-         */
+        
+        /// <summary>
+        ///  Get token by index from token list.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override StringValue TokenList(Int32Value input)
         {
             return new StringValue
             {
-                Value = State.TokenList.Value.Tokens[input.Value]
+                Value = State.TokenList.Value.Value[input.Value]
             };
         }
 
-        /**
-         *  Get perBlock from state
-         */
+        /// <summary>
+        ///  Get perBlock from state
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override BigIntValue PerBlock(StringValue input)
         {
             return State.PerBlock[input.Value];
         }
 
-        /**
-         *  Get poolInfo by pid  address form state.
-         */
-        public override PoolInfoStruct PoolInfo(Int32Value input)
+        /// <summary>
+        /// Get poolInfo by pid  address form state.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public override Pool PoolInfo(Int32Value input)
         {
-            return State.PoolInfo.Value.PoolList[input.Value];
+            return State.PoolInfoList.Value.Value[input.Value];
         }
 
-        /**
-         * Get user Info
-         */
-        public override UserInfoStruct UserInfo(UserInfoInput input)
+        /// <summary>
+        /// Get user Info
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public override User UserInfo(UserInfoInput input)
         {
             return State.UserInfo[input.Pid][input.User];
         }
 
-        /**
-         * Get totalAllocPoint
-         */
+        /// <summary>
+        ///  Get totalAllocPoint of the contract.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override Int64Value TotalAllocPoint(Empty input)
         {
             return new Int64Value
@@ -132,9 +154,11 @@ namespace Gandalf.Contracts.DividendPoolContract
             };
         }
 
-        /**
-         * Get startBlock.
-         */
+        /// <summary>
+        /// Get startBlock.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override Int64Value StartBlock(Empty input)
         {
             return new Int64Value
@@ -143,9 +167,11 @@ namespace Gandalf.Contracts.DividendPoolContract
             };
         }
 
-        /**
-         *  Get endBlock.
-         */
+        /// <summary>
+        ///  Get end block.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override Int64Value EndBlock(Empty input)
         {
             return new Int64Value
@@ -154,9 +180,11 @@ namespace Gandalf.Contracts.DividendPoolContract
             };
         }
 
-        /**
-         * Get Cycle.
-         */
+        /// <summary>
+        /// Get Cycle.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override Int64Value Cycle(Empty input)
         {
             return new Int64Value
@@ -165,24 +193,28 @@ namespace Gandalf.Contracts.DividendPoolContract
             };
         }
 
-        /**
-         *  Get RewardDebt.
-         */
+        /// <summary>
+        /// Get reward debt.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override BigIntValue RewardDebt(RewardDebtInput input)
         {
             return State.RewardDebt[input.Pid][input.User][input.Token];
         }
 
-        /**
-         * Get AccPerShare
-         */
+        /// <summary>
+        /// Get AccPerShare
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override BigIntValue AccPerShare(AccPerShareInput input)
         {
             return State.AccPerShare[input.Pid][input.Token];
         }
 
-        private BigIntValue GetUserReward(int pid, PoolInfoStruct pool,
-            UserInfoStruct user,
+        private BigIntValue GetUserReward(int pid, Pool pool,
+            User user,
             string token,
             long multiplier, Address userAddress)
         {
@@ -195,7 +227,7 @@ namespace Gandalf.Contracts.DividendPoolContract
                 tokenMultiplier.Mul(reward).Div(pool.TotalAmount)
             );
 
-            var amount = user.Amount.Mul(accPerShare).Div(tokenMultiplier)
+            var amount = user.Value.Mul(accPerShare).Div(tokenMultiplier)
                 .Sub(State.RewardDebt[pid][userAddress][token]);
             return amount;
         }

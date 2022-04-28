@@ -47,7 +47,7 @@ namespace Gandalf.Contracts.DividendPool
 
             var b = await adminStub.IsTokenList.CallAsync(new Token
             {
-                TokenSymbol = RewardToken1
+                Value = RewardToken1
             });
             b.Value.ShouldBe(true);
         }
@@ -89,7 +89,7 @@ namespace Gandalf.Contracts.DividendPool
             var adminStub = GetDividendPoolContractStub(OwnerKeyPair);
             await adminStub.AddToken.SendAsync(new Token
             {
-                TokenSymbol = LockedToken
+                Value = LockedToken
             });
             var tomTokenStub = GetTokenContractStub(TomKeyPair);
             var tomBalanceLockedToken = await tomTokenStub.GetBalance.CallAsync(new GetBalanceInput
@@ -124,7 +124,7 @@ namespace Gandalf.Contracts.DividendPool
                 Pid = 0,
                 User = Tom
             });
-            tomUserInfo.Amount.Value.ShouldBe("50000");
+            tomUserInfo.Value.Value.ShouldBe("50000");
             var poolInfo = await tomDivStub.PoolInfo.CallAsync(new Int32Value
             {
                 Value = 0
@@ -156,7 +156,7 @@ namespace Gandalf.Contracts.DividendPool
                 User = Tom
             });
 
-            tomUserInfo.Amount.Value.ShouldBe("20000");
+            tomUserInfo.Value.Value.ShouldBe("20000");
         }
 
         /**
@@ -186,7 +186,7 @@ namespace Gandalf.Contracts.DividendPool
             });
 
             var depositBlockHeight = await GetCurrentBlockHeight();
-            var skipBlockHeight = await BlindJ8Trade(50);
+            var skipBlockHeight = await SkipBlock(50);
             var pending = await tomDivStub.Pending.CallAsync(new PendingInput
             {
                 Pid = 0,
@@ -195,11 +195,11 @@ namespace Gandalf.Contracts.DividendPool
             
             (await adminStub.IsTokenList.CallAsync(new Token
             {
-                TokenSymbol = pending.Tokens[0]
+                Value = pending.Tokens[0]
             })).Value.ShouldBe(true);
             (await adminStub.IsTokenList.CallAsync(new Token
             {
-                TokenSymbol = pending.Tokens[1]
+                Value = pending.Tokens[1]
             })).Value.ShouldBe(true);
             var pendingRewardToken1Expect = skipBlockHeight.Sub(depositBlockHeight).Add(1).Mul(perBlockAmount);
             pending.Amounts[0].ShouldBe(pendingRewardToken1Expect);
@@ -231,7 +231,7 @@ namespace Gandalf.Contracts.DividendPool
             var tomTokenStub = GetTokenContractStub(TomKeyPair);
             
             var depositBlockHeight = await GetCurrentBlockHeight();
-            var skipBlockHeight = await BlindJ8Trade(50);
+            var skipBlockHeight = await SkipBlock(50);
             var pending = await tomDivStub.Pending.CallAsync(new PendingInput
             {
                 Pid = 0,
@@ -240,7 +240,7 @@ namespace Gandalf.Contracts.DividendPool
             
             (await adminStub.IsTokenList.CallAsync(new Token
             {
-                TokenSymbol = pending.Tokens[0]
+                Value = pending.Tokens[0]
             })).Value.ShouldBe(true);
             pending.Amounts[0].ShouldBe(0);
             pending.Tokens[0].ShouldBe(RewardToken1);
@@ -258,7 +258,7 @@ namespace Gandalf.Contracts.DividendPool
             var startBlock = await adminDivStub.StartBlock.CallAsync(new Empty());
             var endBlock = await adminDivStub.EndBlock.CallAsync(new Empty());
 
-            await BlindJ8Trade(10);
+            await SkipBlock(10);
             
             var currentBlockHeight = await GetCurrentBlockHeight();
             currentBlockHeight.ShouldBeGreaterThan(startBlock.Value);
@@ -291,7 +291,7 @@ namespace Gandalf.Contracts.DividendPool
                 Owner = Tom,
                 Symbol = LockedToken
             })).Balance.ShouldBe(60000000000L-50000);
-            var skipBlocks = await BlindJ8Trade(50);
+            var skipBlocks = await SkipBlock(50);
 
             var pending = await dividendPoolTomStub.Pending.CallAsync(new PendingInput
             {
@@ -308,7 +308,7 @@ namespace Gandalf.Contracts.DividendPool
                 Spender = DAppContractAddress,
                 Symbol = RewardToken1
             });
-            await BlindJ8Trade(100);
+            await SkipBlock(100);
             currentBlockHeight = await GetCurrentBlockHeight();
             currentBlockHeight.ShouldBeGreaterThan(endBlock.Value);
             
@@ -326,7 +326,7 @@ namespace Gandalf.Contracts.DividendPool
             input.Tokens.Add(RewardToken1);
             input.Amounts.Add(amount);
             input.PerBlocks.Add(perBlockAmount);
-            input.StartBlock = currentBlockHeight.Add(2);
+            input.StartBlock = currentBlockHeight.Add(3);
             await adminDivStub.NewReward.SendAsync(input);
         }
         
@@ -346,7 +346,7 @@ namespace Gandalf.Contracts.DividendPool
             });
             await adminDivStub.AddToken.SendAsync(new Token
             {
-                TokenSymbol = RewardToken1,
+                Value = RewardToken1,
             });
 
             var amount = 600000000;
@@ -383,7 +383,7 @@ namespace Gandalf.Contracts.DividendPool
             });
 
             var depositBlockHeight = await GetCurrentBlockHeight();
-            currentBlockHeight = await BlindJ8Trade(50);
+            currentBlockHeight = await SkipBlock(50);
 
             // check pending
             var pending = await tomDivStub.Pending.CallAsync(new PendingInput
@@ -393,7 +393,7 @@ namespace Gandalf.Contracts.DividendPool
             });
             (await adminDivStub.IsTokenList.CallAsync(new Token
             {
-                TokenSymbol = pending.Tokens[0]
+                Value = pending.Tokens[0]
             })).Value.ShouldBe(true);
 
             var reward = currentBlockHeight.Sub(depositBlockHeight).Add(1).Mul(perBlockAmount);
@@ -420,7 +420,7 @@ namespace Gandalf.Contracts.DividendPool
             newRewardInput.Tokens.Add(RewardToken2);
             newRewardInput.Amounts.Add(100000000);
             newRewardInput.PerBlocks.Add(token2PerBlockAmount);
-            newRewardInput.StartBlock = await GetCurrentBlockHeight() + 2;
+            newRewardInput.StartBlock = await GetCurrentBlockHeight() + 6;
 
             var tokenOptionInput = new TokenOptionInput
             {
@@ -433,7 +433,7 @@ namespace Gandalf.Contracts.DividendPool
             var depositHeight = await GetCurrentBlockHeight();
             
             await NewReward(newRewardInput);
-            await BlindJ8Trade(50);
+            await SkipBlock(50);
 
             var currentBlockHeight = await GetCurrentBlockHeight();
 
@@ -443,8 +443,8 @@ namespace Gandalf.Contracts.DividendPool
                 User = Tom
             });
 
-            var token1Expect = currentBlockHeight.Sub(depositHeight).Add(1).Mul(token1PerBlockAmount);
-            var token2Expect = currentBlockHeight.Sub(depositHeight).Add(1).Mul(token2PerBlockAmount);
+            var token1Expect = currentBlockHeight.Sub(newRewardInput.StartBlock).Add(1).Mul(token1PerBlockAmount);
+            var token2Expect = currentBlockHeight.Sub(newRewardInput.StartBlock).Add(1).Mul(token2PerBlockAmount);
             pending.Amounts[0].ShouldBe(token1Expect);
             pending.Amounts[1].ShouldBe(token2Expect);
         }
@@ -465,7 +465,7 @@ namespace Gandalf.Contracts.DividendPool
             newRewardInput.Tokens.Add(RewardToken1);
             newRewardInput.PerBlocks.Add(perBlockAmount);
             var currentBlockHeight = await GetCurrentBlockHeight();
-            newRewardInput.StartBlock = currentBlockHeight.Add(2);
+            newRewardInput.StartBlock = currentBlockHeight.Add(3);
             await NewReward(newRewardInput);
 
             var tom = new TokenOptionInput
@@ -482,10 +482,10 @@ namespace Gandalf.Contracts.DividendPool
                 Amount = 80000,
                 Pid = 0
             };
-            await BlindJ8Trade(40);
+            await SkipBlock(40);
             await deposit(tokenKittyStub, dividendKittyStub, kittyOption, LockedToken);
             var kittyDepositHeight = await GetCurrentBlockHeight();
-            currentBlockHeight = await BlindJ8Trade(30);
+            currentBlockHeight = await SkipBlock(30);
             
             // check pending
             var tomPending = await adminDivStub.Pending.CallAsync(new PendingInput
@@ -537,7 +537,7 @@ namespace Gandalf.Contracts.DividendPool
 
             await dividendPoolContractStub.NewReward.SendAsync(input);
         }
-        private async Task<long> BlindJ8Trade(int skipBlocks)
+        private async Task<long> SkipBlock(int skipBlocks)
         {
             var tokenStub = GetTokenContractStub(OwnerKeyPair);
             var first = (await GetChain()).BestChainHeight;
@@ -577,7 +577,7 @@ namespace Gandalf.Contracts.DividendPool
         {
             await adminStub.AddToken.SendAsync(new Token
             {
-                TokenSymbol = token
+                Value = token
             });
         }
 

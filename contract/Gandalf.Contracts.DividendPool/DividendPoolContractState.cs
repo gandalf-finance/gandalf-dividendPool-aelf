@@ -12,9 +12,10 @@ namespace Gandalf.Contracts.DividendPoolContract
         public SingletonState<TokenList> TokenList { get; set; }
         // token=> number
         public MappedState<string,BigIntValue> PerBlock { get; set; }
-        public SingletonState<PoolInfo> PoolInfo { get; set; }
+        
+        public SingletonState<PoolInfoList> PoolInfoList { get; set; }
         // pid=>user=>userInfo
-        public MappedState<int, Address, UserInfoStruct> UserInfo { get; set; }
+        public MappedState<int, Address, User> UserInfo { get; set; }
         public Int64State TotalAllocPoint { get; set; }
         public Int64State StartBlock { get; set; }
         public Int64State EndBlock { get; set; }

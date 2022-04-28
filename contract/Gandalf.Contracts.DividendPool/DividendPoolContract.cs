@@ -11,7 +11,12 @@ namespace Gandalf.Contracts.DividendPoolContract
     /// Notice that it inherits from the protobuf generated code. 
     /// </summary>
     public partial class DividendPoolContract : DividendPoolContractContainer.DividendPoolContractBase
-    {
+    {   
+        /// <summary>
+        /// Initialize the contract.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override Empty Initialize(InitializeInput input)
         {
             Assert(State.Owner.Value==null,"Already initialized.");
@@ -22,7 +27,7 @@ namespace Gandalf.Contracts.DividendPoolContract
                 Cycle = input.Cycle
             });
 
-            State.PoolInfo.Value = new PoolInfo();
+            State.PoolInfoList.Value = new PoolInfoList();
             State.TokenList.Value = new TokenList();
             State.TokenContract.Value =
                 Context.GetContractAddressByName(SmartContractConstants.TokenContractSystemName);

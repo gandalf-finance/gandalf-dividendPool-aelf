@@ -32,7 +32,6 @@ service DividendPoolContract {
   // Action
   rpc Initialize(InitializeInput) returns(google.protobuf.Empty){
   }
-
   rpc AddToken(Token) returns (google.protobuf.Empty){}
 
   rpc NewReward(NewRewardInput) returns(google.protobuf.Empty){}
@@ -80,11 +79,11 @@ service DividendPoolContract {
     option (aelf.is_view) = true;
   }
   
-  rpc PoolInfo(google.protobuf.Int32Value) returns (PoolInfoStruct){
+  rpc PoolInfo(google.protobuf.Int32Value) returns (Pool){
     option (aelf.is_view) = true;
   }
   
-  rpc UserInfo(UserInfoInput) returns(UserInfoStruct){
+  rpc UserInfo(UserInfoInput) returns(User){
     option (aelf.is_view) = true;
   }
   
@@ -151,7 +150,7 @@ message PendingInput{
 }
 
 message Token{
-  string token_symbol = 1;
+  string value = 1;
 }
 
 message NewRewardInput{
@@ -181,7 +180,7 @@ message UpdatePool{
   string token =2;
   aelf.BigIntValue reward =3;
   aelf.BigIntValue acc_per_share = 4;
-  int64 block_heigh=5;
+  int64 block_height=5;
 }
 
 message Harvest{
@@ -241,22 +240,21 @@ message SetPool{
 }
 
 //struct
-message UserInfoStruct{
-  aelf.BigIntValue amount = 1;
+message User{
+  aelf.BigIntValue value = 1;
 }
 
-message PoolInfoStruct{
+message Pool{
   string lp_token = 1 ;
   int64 alloc_point = 2;
   int64 last_reward_block = 3;
   aelf.BigIntValue total_amount = 4;
-//  map<string, int64> acc_per_share = 5;
 }
 
 message TokenList{
-  repeated string tokens = 1;
+  repeated string value = 1;
 }
 
-message PoolInfo{
-  repeated PoolInfoStruct pool_list = 1;
+message PoolInfoList{
+  repeated Pool value = 1;
 }

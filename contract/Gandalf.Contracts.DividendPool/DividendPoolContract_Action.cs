@@ -9,29 +9,33 @@ namespace Gandalf.Contracts.DividendPoolContract
 {
     public partial class DividendPoolContract
     {
-        /**
-         *  AddToken
-         */
+        /// <summary>
+        /// Add tokens to dividend.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override Empty AddToken(Token input)
         {
             AssertSenderIsOwner();
-            Assert(input.TokenSymbol != null, "Invalid token symbol.");
+            Assert(input.Value != null, "Invalid token symbol.");
             var tokenList = State.TokenList.Value;
-            Assert(!tokenList.Tokens.Contains(input.TokenSymbol), "Token has Added.");
-            tokenList.Tokens.Add(input.TokenSymbol);
-            State.TokenList.Value = tokenList;
-            State.PerBlock[input.TokenSymbol] = new BigIntValue(0);
+            Assert(!tokenList.Value.Contains(input.Value), "Token has Added.");
+            State.TokenList.Value.Value.Add(input.Value);
+            State.PerBlock[input.Value] = new BigIntValue(0);
             Context.Fire(new AddToken
             {
-                TokenSymbol = input.TokenSymbol,
-                Index = State.TokenList.Value.Tokens.Count.Mul(1)
+                TokenSymbol = input.Value,
+                Index = State.TokenList.Value.Value.Count.Mul(1)
             });
             return new Empty();
         }
 
-        /**
-         *  NewReward
-         */
+        
+        /// <summary>
+        /// Add new reward.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override Empty NewReward(NewRewardInput input)
         {
             AssertSenderIsOwner();
@@ -39,12 +43,12 @@ namespace Gandalf.Contracts.DividendPoolContract
             Assert(input.StartBlock > Context.CurrentHeight, $"Invalid startblock {input.StartBlock}.");
             Assert(Context.CurrentHeight > endBlock && input.StartBlock > endBlock, "Not finished.");
 
-            MassUpdatePools(new Empty());
+            MassUpdatePools();
             var tokenLength = input.Tokens.Count;
             for (int i = 0; i < tokenLength; i++)
             {
                 var token = input.Tokens[i];
-                Assert(State.TokenList.Value.Tokens.Contains(token), "Token not exist.");
+                Assert(State.TokenList.Value.Value.Contains(token), "Token not exist.");
                 var amount = input.Amounts[i];
                 var perBlock = input.PerBlocks[i];
                 if (amount.Equals("0"))
@@ -86,72 +90,82 @@ namespace Gandalf.Contracts.DividendPoolContract
             return new Empty();
         }
 
-        /**
-         * SetCycle
-         */
+        /// <summary>
+        /// Set reward cycle by owner.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override Empty SetCycle(Int32Value input)
         {
             AssertSenderIsOwner();
-            State.Cycle.Value = input.Value;
-            Context.Fire(new SetCycle
-            {
-                Cycle = input.Value
-            });
+            SetCycle(input.Value);
             return new Empty();
         }
-
-        /**
-         * Add
-         * @Description: Add a new lp to the pool. Can only be called by the owner.
-         */
+        
+        private void SetCycle(int cycle)
+        {
+            State.Cycle.Value = cycle;
+            Context.Fire(new SetCycle
+            {
+                Cycle = cycle
+            });
+        }
+        
+        /// <summary>
+        ///  Add pool.
+        ///  Add a new lp to the pool. Can only be called by the owner.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns>Empty</returns>
         public override Empty Add(AddPoolInput input)
         {
             AssertSenderIsOwner();
             Assert(input.TokenSymbol != null, "Token can not be null.");
             if (input.WithUpdate)
             {
-                MassUpdatePools(new Empty());
+                MassUpdatePools();
             }
 
-            var lastRewadrBlock = Context.CurrentHeight > State.StartBlock.Value
+            var lastRewardBlock = Context.CurrentHeight > State.StartBlock.Value
                 ? Context.CurrentHeight
                 : State.StartBlock.Value;
             State.TotalAllocPoint.Value = State.TotalAllocPoint.Value.Add(input.AllocationPoint);
-            var count = State.PoolInfo.Value.PoolList.Count;
-            State.PoolInfo.Value.PoolList.Add(new PoolInfoStruct
+            var count = State.PoolInfoList.Value.Value.Count;
+            State.PoolInfoList.Value.Value.Add(new Pool
             {
                 LpToken = input.TokenSymbol,
                 AllocPoint = input.AllocationPoint,
                 TotalAmount = 0,
-                LastRewardBlock = lastRewadrBlock
+                LastRewardBlock = lastRewardBlock
             });
 
             Context.Fire(new AddPool
             {
                 Token = input.TokenSymbol,
                 AllocPoint = input.AllocationPoint,
-                LastRewardBlock = lastRewadrBlock,
+                LastRewardBlock = lastRewardBlock,
                 Pid = count
             });
             return new Empty();
         }
 
-        /**
-         * Set
-         * @Description: Update the given pool's  allocation point.
-         * Can only be called by the owner.
-         */
+        /// <summary>
+        ///  Update the given pool's  allocation point.
+        /// </summary>
+        /// <remarks>Can only be called by the owner.</remarks>
+        /// <param name="input"></param>
+        /// <returns>Empty</returns>
         public override Empty Set(SetPoolInput input)
         {
             AssertSenderIsOwner();
             if (input.WithUpdate)
             {
-                MassUpdatePools(new Empty());
+                MassUpdatePools();
             }
 
             State.TotalAllocPoint.Value = State.TotalAllocPoint.Value
-                .Sub(State.PoolInfo.Value.PoolList[input.Pid].AllocPoint).Add(input.AllocationPoint);
-            State.PoolInfo.Value.PoolList[input.Pid].AllocPoint = input.AllocationPoint;
+                .Sub(State.PoolInfoList.Value.Value[input.Pid].AllocPoint).Add(input.AllocationPoint);
+            State.PoolInfoList.Value.Value[input.Pid].AllocPoint = input.AllocationPoint;
             Context.Fire(new SetPool
             {
                 Pid = input.Pid,
@@ -160,33 +174,34 @@ namespace Gandalf.Contracts.DividendPoolContract
             return new Empty();
         }
 
-        /**
-         * UpdatePool
-         * @Description: Update reward variables of the given pool to be up-to-date.
-         */
+        /// <summary>
+        /// Update reward variables of the given pool to be up-to-date.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override Empty UpdatePool(Int32Value input)
         {
-            Assert(input != null, "Invalid paramter.");
-            return UpdatePool(input.Value);
+            UpdatePool(input.Value);
+            return new Empty();
         }
 
-
-        /**
-         * Deposit
-         * @Description: deposit lp token.
-         */
+        /// <summary>
+        /// deposit lp token.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override Empty Deposit(TokenOptionInput input)
         {
-            Assert(input != null, "Invalid paramter.");
-            var pool = State.PoolInfo.Value.PoolList[input.Pid];
-            var user = State.UserInfo[input.Pid][Context.Sender] ?? new UserInfoStruct
+            Assert(input != null, "Invalid parameter.");
+            var pool = State.PoolInfoList.Value.Value[input.Pid];
+            var user = State.UserInfo[input.Pid][Context.Sender] ?? new User
             {
-                Amount = "0"
+                Value = "0"
             };
             UpdatePool(input.Pid);
-            if (user.Amount >= 0)
+            if (user.Value >= 0)
             {
-                var tokenList = State.TokenList.Value.Tokens;
+                var tokenList = State.TokenList.Value.Value;
                 for (int i = 0; i < tokenList.Count; i++)
                 {
                     var token = tokenList[i];
@@ -196,7 +211,7 @@ namespace Gandalf.Contracts.DividendPoolContract
                     State.RewardDebt[input.Pid][Context.Sender][token] =
                         State.RewardDebt[input.Pid][Context.Sender][token] ?? new BigIntValue(0);
 
-                    var pendingAmount = user.Amount
+                    var pendingAmount = user.Value
                         .Mul(State.AccPerShare[input.Pid][token])
                         .Div(tokenMultiplier)
                         .Sub(State.RewardDebt[input.Pid][Context.Sender][token]);
@@ -218,7 +233,7 @@ namespace Gandalf.Contracts.DividendPoolContract
                         }
                     }
 
-                    State.RewardDebt[input.Pid][Context.Sender][token] = user.Amount
+                    State.RewardDebt[input.Pid][Context.Sender][token] = user.Value
                         .Add(input.Amount)
                         .Mul(State.AccPerShare[input.Pid][token])
                         .Div(tokenMultiplier);
@@ -235,11 +250,11 @@ namespace Gandalf.Contracts.DividendPoolContract
                     Amount = Convert.ToInt64(input.Amount.Value)
                 });
 
-                user.Amount = user.Amount.Add(input.Amount);
+                user.Value = user.Value.Add(input.Amount);
                 pool.TotalAmount = pool.TotalAmount.Add(input.Amount);
             }
 
-            State.PoolInfo.Value.PoolList[input.Pid] = pool;
+            State.PoolInfoList.Value.Value[input.Pid] = pool;
             State.UserInfo[input.Pid][Context.Sender] = user;
             Context.Fire(new Deposit
             {
@@ -250,25 +265,25 @@ namespace Gandalf.Contracts.DividendPoolContract
             return new Empty();
         }
 
-        /**
-         *  Withdraw
-         * @Decription: withdraw lp token.
-         */
+        /// <summary>
+        /// Withdraw lp token.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns>Empty</returns>
         public override Empty Withdraw(TokenOptionInput input)
         {
-            Assert(input != null, "Invalid paramter.");
-            var pool = State.PoolInfo.Value.PoolList[input.Pid];
+            Assert(input.Amount != null, "Invalid parameter.");
+            var pool = State.PoolInfoList.Value.Value[input.Pid];
             var user = State.UserInfo[input.Pid][Context.Sender];
-            Assert(user.Amount >= input.Amount, "Withdraw: insufficient balance");
+            Assert(user.Value >= input.Amount, "Withdraw: insufficient balance");
             UpdatePool(input.Pid);
-            if (user.Amount > 0)
+            if (user.Value > 0)
             {
-                var tokenList = State.TokenList.Value.Tokens;
-                for (int i = 0; i < tokenList.Count; i++)
+                var tokenList = State.TokenList.Value.Value;
+                foreach (var token in tokenList)
                 {
-                    var token = tokenList[i];
                     var tokenMultiplier = GetMultiplier(token);
-                    var pendingAmount = user.Amount
+                    var pendingAmount = user.Value
                         .Mul(State.AccPerShare[input.Pid][token])
                         .Div(tokenMultiplier)
                         .Sub(State.RewardDebt[input.Pid][Context.Sender][token]);
@@ -290,7 +305,7 @@ namespace Gandalf.Contracts.DividendPoolContract
                         }
                     }
 
-                    State.RewardDebt[input.Pid][Context.Sender][token] = user.Amount
+                    State.RewardDebt[input.Pid][Context.Sender][token] = user.Value
                         .Sub(input.Amount)
                         .Mul(State.AccPerShare[input.Pid][token])
                         .Div(tokenMultiplier);
@@ -299,7 +314,7 @@ namespace Gandalf.Contracts.DividendPoolContract
 
             if (input.Amount > 0)
             {
-                user.Amount = user.Amount.Sub(input.Amount);
+                user.Value = user.Value.Sub(input.Amount);
                 pool.TotalAmount = pool.TotalAmount.Sub(input.Amount);
                 State.TokenContract.Transfer.Send(new TransferInput
                 {
@@ -318,20 +333,25 @@ namespace Gandalf.Contracts.DividendPoolContract
             return new Empty();
         }
 
-        /**
-         * MassUpdatePools
-         */
+        /// <summary>
+        /// Mass Update Pools
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public override Empty MassUpdatePools(Empty input)
         {
-            var length = State.PoolInfo.Value.PoolList.Count;
+            MassUpdatePools();
+            return new Empty();
+        }
+        
+        private void MassUpdatePools()
+        {
+            var length = State.PoolInfoList.Value.Value.Count;
             for (int pid = 0; pid < length; pid++)
             {
                 UpdatePool(pid);
             }
-
-            return new Empty();
         }
-
 
         private BigIntValue SafeTransfer(
             Address to,
@@ -361,32 +381,32 @@ namespace Gandalf.Contracts.DividendPoolContract
             return realAmount;
         }
 
-
-        private Empty UpdatePool(int pid)
+        /// <summary>
+        /// Update pool accpershare by pool id.
+        /// </summary>
+        /// <param name="pid"></param>
+        private void UpdatePool(int pid)
         {
-            var pool = State.PoolInfo.Value.PoolList[pid];
+            var pool = State.PoolInfoList.Value.Value[pid];
             var number = Context.CurrentHeight > State.EndBlock.Value
                 ? State.EndBlock.Value
                 : Context.CurrentHeight;
             if (number <= pool.LastRewardBlock)
             {
-                return new Empty();
+                return ;
             }
 
             var totalAmount = pool.TotalAmount;
             if (totalAmount.Equals(0))
             {
                 pool.LastRewardBlock = number;
-                State.PoolInfo.Value.PoolList[pid] = pool;
-                return new Empty();
+                State.PoolInfoList.Value.Value[pid] = pool;
+                return ;
             }
 
             var multiplier = number.Sub(pool.LastRewardBlock);
-            var tokenLength = State.TokenList.Value.Tokens.Count;
-
-            for (int i = 0; i < tokenLength; i++)
+            foreach (var token in State.TokenList.Value.Value)
             {
-                var token = State.TokenList.Value.Tokens[i];
                 var tokenPerBlock = State.PerBlock[token];
 
                 var reward = tokenPerBlock
@@ -411,13 +431,12 @@ namespace Gandalf.Contracts.DividendPoolContract
                     Reward = reward,
                     Token = token,
                     AccPerShare = State.AccPerShare[pid][token],
-                    BlockHeigh = number
+                    BlockHeight = number
                 });
             }
 
             pool.LastRewardBlock = number;
-            State.PoolInfo.Value.PoolList[pid] = pool;
-            return new Empty();
+            State.PoolInfoList.Value.Value[pid] = pool;
         }
 
         private BigIntValue GetMultiplier(string token)
@@ -436,10 +455,10 @@ namespace Gandalf.Contracts.DividendPoolContract
 
         private void UpdatePoolLastRewardBlock(long lastRewardBlock)
         {
-            var length = State.PoolInfo.Value.PoolList.Count;
+            var length = State.PoolInfoList.Value.Value.Count;
             for (int i = 0; i < length; i++)
             {
-                State.PoolInfo.Value.PoolList[i].LastRewardBlock = lastRewardBlock;
+                State.PoolInfoList.Value.Value[i].LastRewardBlock = lastRewardBlock;
             }
         }
 
