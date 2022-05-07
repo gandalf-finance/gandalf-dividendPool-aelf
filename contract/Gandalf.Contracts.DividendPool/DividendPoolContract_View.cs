@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using AElf.CSharp.Core;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
@@ -38,7 +36,7 @@ namespace Gandalf.Contracts.DividendPoolContract
             var number = Context.CurrentHeight > State.EndBlock.Value
                 ? State.EndBlock.Value
                 : Context.CurrentHeight;
-            if (number > pool.LastRewardBlock && !pool.TotalAmount.Equals(0))
+            if (number >= pool.LastRewardBlock && !pool.TotalAmount.Equals(0))
             {
                 var multiplier = number.Sub(pool.LastRewardBlock);
                 for (int i = 0; i < tokenList.Count; i++)

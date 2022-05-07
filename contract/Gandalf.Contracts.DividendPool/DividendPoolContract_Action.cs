@@ -40,7 +40,7 @@ namespace Gandalf.Contracts.DividendPoolContract
         {
             AssertSenderIsOwner();
             var endBlock = State.EndBlock.Value;
-            Assert(input.StartBlock > Context.CurrentHeight, $"Invalid startblock {input.StartBlock}.");
+            Assert(input.StartBlock > Context.CurrentHeight, $"Invalid start block {input.StartBlock}.");
             Assert(Context.CurrentHeight > endBlock && input.StartBlock > endBlock, "Not finished.");
 
             MassUpdatePools();

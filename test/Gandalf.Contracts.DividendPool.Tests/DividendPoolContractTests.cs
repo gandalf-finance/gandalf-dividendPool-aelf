@@ -1,10 +1,8 @@
-using System;
 using System.Threading.Tasks;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core;
 using AElf.Kernel;
 using AElf.Kernel.Blockchain.Application;
-using AElf.Sdk.CSharp.State;
 using Gandalf.Contracts.DividendPoolContract;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.DependencyInjection;
