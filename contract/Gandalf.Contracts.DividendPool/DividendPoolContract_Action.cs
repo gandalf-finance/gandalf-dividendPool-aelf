@@ -432,6 +432,7 @@ namespace Gandalf.Contracts.DividendPoolContract
                 }
 
                 var tokenMultiplier = GetMultiplier(token);
+                State.AccPerShare[pid][token] = State.AccPerShare[pid][token] ?? new BigIntValue(0);
                 State.AccPerShare[pid][token] = State.AccPerShare[pid][token]
                     .Add(
                         reward.Mul(tokenMultiplier).Div(totalAmount)
