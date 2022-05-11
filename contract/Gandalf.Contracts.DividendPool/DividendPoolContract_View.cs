@@ -221,6 +221,13 @@ namespace Gandalf.Contracts.DividendPoolContract
                 .Mul(pool.AllocPoint)
                 .Div(State.TotalAllocPoint.Value);
             var tokenMultiplier = GetMultiplier(token);
+            if (State.AccPerShare[pid][token]==null)
+            {
+                return new BigIntValue
+                {
+                    Value = "0"
+                };
+            }
             var accPerShare = State.AccPerShare[pid][token].Add(
                 tokenMultiplier.Mul(reward).Div(pool.TotalAmount)
             );

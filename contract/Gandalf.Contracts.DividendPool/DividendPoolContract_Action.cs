@@ -44,6 +44,7 @@ namespace Gandalf.Contracts.DividendPoolContract
             Assert(Context.CurrentHeight > endBlock && input.StartBlock > endBlock, "Not finished.");
 
             MassUpdatePools();
+            ResetPerBlock();
             var tokenLength = input.Tokens.Count;
             for (int i = 0; i < tokenLength; i++)
             {
@@ -88,6 +89,17 @@ namespace Gandalf.Contracts.DividendPoolContract
             State.EndBlock.Value = input.StartBlock.Add(State.Cycle.Value);
             UpdatePoolLastRewardBlock(input.StartBlock);
             return new Empty();
+        }
+
+        private void ResetPerBlock()
+        {
+            foreach (var token in State.TokenList.Value.Value)
+            {
+                State.PerBlock[token] = new BigIntValue
+                {
+                    Value = "0"
+                };
+            }
         }
 
         /// <summary>
@@ -206,7 +218,7 @@ namespace Gandalf.Contracts.DividendPoolContract
                 {
                     var token = tokenList[i];
                     var tokenMultiplier = GetMultiplier(token);
-
+                    
                     State.AccPerShare[input.Pid][token] = State.AccPerShare[input.Pid][token] ?? new BigIntValue(0);
                     State.RewardDebt[input.Pid][Context.Sender][token] =
                         State.RewardDebt[input.Pid][Context.Sender][token] ?? new BigIntValue(0);
@@ -403,7 +415,7 @@ namespace Gandalf.Contracts.DividendPoolContract
                 State.PoolInfoList.Value.Value[pid] = pool;
                 return ;
             }
-
+            
             var multiplier = number.Sub(pool.LastRewardBlock);
             foreach (var token in State.TokenList.Value.Value)
             {

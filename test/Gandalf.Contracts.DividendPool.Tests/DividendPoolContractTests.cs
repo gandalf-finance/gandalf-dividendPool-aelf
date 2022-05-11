@@ -369,7 +369,7 @@ namespace Gandalf.Contracts.DividendPool
                 Value = 0
             });
             poolInfo.TotalAmount.Value.ShouldBe("20000");
-            poolInfo.LastRewardBlock.ShouldBe(18);
+            poolInfo.LastRewardBlock.ShouldBe(20L);
             tomUserInfo = await tomDivStub.UserInfo.CallAsync(new UserInfoInput
             {
                 Pid = 0,
