@@ -6,7 +6,7 @@ namespace Gandalf.Contracts.DividendPoolContract
 {
     public partial class DividendPoolContract
     {
-        
+
         /// <summary>
         ///  Get pool length.
         /// </summary>
@@ -42,7 +42,7 @@ namespace Gandalf.Contracts.DividendPoolContract
                 for (int i = 0; i < tokenList.Count; i++)
                 {
                     var tokenSymbol = tokenList[i];
-                    var amount = GetUserReward(input.Pid, pool, user, tokenSymbol, multiplier,input.User);
+                    var amount = GetUserReward(input.Pid, pool, user, tokenSymbol, multiplier, input.User);
                     pendingOutput.Tokens.Add(tokenSymbol);
                     pendingOutput.Amounts.Add(amount);
                 }
@@ -95,7 +95,7 @@ namespace Gandalf.Contracts.DividendPoolContract
             return State.Owner.Value;
         }
 
-        
+
         /// <summary>
         ///  Get token by index from token list.
         /// </summary>
@@ -221,14 +221,8 @@ namespace Gandalf.Contracts.DividendPoolContract
                 .Mul(pool.AllocPoint)
                 .Div(State.TotalAllocPoint.Value);
             var tokenMultiplier = GetMultiplier(token);
-            if (State.AccPerShare[pid][token]==null)
-            {
-                return new BigIntValue
-                {
-                    Value = "0"
-                };
-            }
-            var accPerShare = State.AccPerShare[pid][token].Add(
+
+            var accPerShare = GetAccPerShare(pid, token).Add(
                 tokenMultiplier.Mul(reward).Div(pool.TotalAmount)
             );
 

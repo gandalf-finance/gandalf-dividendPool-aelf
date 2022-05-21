@@ -30,7 +30,6 @@ namespace Gandalf.Contracts.DividendPoolContract
             return new Empty();
         }
 
-        
         /// <summary>
         /// Add new reward.
         /// </summary>
@@ -46,7 +45,7 @@ namespace Gandalf.Contracts.DividendPoolContract
             MassUpdatePools();
             ResetPerBlock();
             var tokenLength = input.Tokens.Count;
-            for (int i = 0; i < tokenLength; i++)
+            for (var i = 0; i < tokenLength; i++)
             {
                 var token = input.Tokens[i];
                 Assert(State.TokenList.Value.Value.Contains(token), "Token not exist.");
@@ -113,7 +112,7 @@ namespace Gandalf.Contracts.DividendPoolContract
             SetCycle(input.Value);
             return new Empty();
         }
-        
+
         private void SetCycle(int cycle)
         {
             State.Cycle.Value = cycle;
@@ -122,7 +121,7 @@ namespace Gandalf.Contracts.DividendPoolContract
                 Cycle = cycle
             });
         }
-        
+
         /// <summary>
         ///  Add pool.
         ///  Add a new lp to the pool. Can only be called by the owner.
@@ -218,22 +217,22 @@ namespace Gandalf.Contracts.DividendPoolContract
                 {
                     var token = tokenList[i];
                     var tokenMultiplier = GetMultiplier(token);
-                    
-                    State.AccPerShare[input.Pid][token] = State.AccPerShare[input.Pid][token] ?? new BigIntValue(0);
+
+                    State.AccPerShare[input.Pid][token] = GetAccPerShare(input.Pid, token);
                     State.RewardDebt[input.Pid][Context.Sender][token] =
                         State.RewardDebt[input.Pid][Context.Sender][token] ?? new BigIntValue(0);
 
                     var pendingAmount = user.Value
-                        .Mul(State.AccPerShare[input.Pid][token])
+                        .Mul(GetAccPerShare(input.Pid, token))
                         .Div(tokenMultiplier)
-                        .Sub(State.RewardDebt[input.Pid][Context.Sender][token]);
+                        .Sub(GetRewardDebt(input.Pid, Context.Sender, token));
 
                     if (pendingAmount > 0)
                     {
                         var realAmount = SafeTransfer(Context.Sender, pendingAmount, token,
                             pool.LpToken.Equals(token) ? pool.TotalAmount : new BigIntValue(0));
 
-                        if (realAmount>0)
+                        if (realAmount > 0)
                         {
                             Context.Fire(new Harvest
                             {
@@ -247,7 +246,7 @@ namespace Gandalf.Contracts.DividendPoolContract
 
                     State.RewardDebt[input.Pid][Context.Sender][token] = user.Value
                         .Add(input.Amount)
-                        .Mul(State.AccPerShare[input.Pid][token])
+                        .Mul(GetAccPerShare(input.Pid, token))
                         .Div(tokenMultiplier);
                 }
             }
@@ -296,16 +295,16 @@ namespace Gandalf.Contracts.DividendPoolContract
                 {
                     var tokenMultiplier = GetMultiplier(token);
                     var pendingAmount = user.Value
-                        .Mul(State.AccPerShare[input.Pid][token])
+                        .Mul(GetAccPerShare(input.Pid, token))
                         .Div(tokenMultiplier)
-                        .Sub(State.RewardDebt[input.Pid][Context.Sender][token]);
+                        .Sub(GetRewardDebt(input.Pid, Context.Sender, token));
 
                     if (pendingAmount > 0)
                     {
                         var realAmount = SafeTransfer(Context.Sender, pendingAmount, token,
                             pool.LpToken.Equals(token) ? pool.TotalAmount : new BigIntValue(0));
 
-                        if (realAmount>0)
+                        if (realAmount > 0)
                         {
                             Context.Fire(new Harvest
                             {
@@ -319,7 +318,7 @@ namespace Gandalf.Contracts.DividendPoolContract
 
                     State.RewardDebt[input.Pid][Context.Sender][token] = user.Value
                         .Sub(input.Amount)
-                        .Mul(State.AccPerShare[input.Pid][token])
+                        .Mul(GetAccPerShare(input.Pid, token))
                         .Div(tokenMultiplier);
                 }
             }
@@ -355,7 +354,7 @@ namespace Gandalf.Contracts.DividendPoolContract
             MassUpdatePools();
             return new Empty();
         }
-        
+
         private void MassUpdatePools()
         {
             var length = State.PoolInfoList.Value.Value.Count;
@@ -405,7 +404,7 @@ namespace Gandalf.Contracts.DividendPoolContract
                 : Context.CurrentHeight;
             if (number <= pool.LastRewardBlock)
             {
-                return ;
+                return;
             }
 
             var totalAmount = pool.TotalAmount;
@@ -413,9 +412,9 @@ namespace Gandalf.Contracts.DividendPoolContract
             {
                 pool.LastRewardBlock = number;
                 State.PoolInfoList.Value.Value[pid] = pool;
-                return ;
+                return;
             }
-            
+
             var multiplier = number.Sub(pool.LastRewardBlock);
             foreach (var token in State.TokenList.Value.Value)
             {
@@ -432,7 +431,7 @@ namespace Gandalf.Contracts.DividendPoolContract
                 }
 
                 var tokenMultiplier = GetMultiplier(token);
-                State.AccPerShare[pid][token] = State.AccPerShare[pid][token] ?? new BigIntValue(0);
+                State.AccPerShare[pid][token] = GetAccPerShare(pid, token);
                 State.AccPerShare[pid][token] = State.AccPerShare[pid][token]
                     .Add(
                         reward.Mul(tokenMultiplier).Div(totalAmount)
@@ -443,7 +442,7 @@ namespace Gandalf.Contracts.DividendPoolContract
                     Pid = pid,
                     Reward = reward,
                     Token = token,
-                    AccPerShare = State.AccPerShare[pid][token],
+                    AccPerShare = GetAccPerShare(pid, token),
                     BlockHeight = number
                 });
             }
