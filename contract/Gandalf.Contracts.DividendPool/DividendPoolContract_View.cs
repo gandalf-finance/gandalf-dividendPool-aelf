@@ -226,9 +226,14 @@ namespace Gandalf.Contracts.DividendPoolContract
                 tokenMultiplier.Mul(reward).Div(pool.TotalAmount)
             );
 
-            var amount = user.Value.Mul(accPerShare).Div(tokenMultiplier)
-                .Sub(State.RewardDebt[pid][userAddress][token]);
-            return amount;
+            var userRewardDebt = GetRewardDebt(pid, userAddress, token, false);
+            if (userRewardDebt == null)
+            {
+                return user.Value.Mul(accPerShare).Div(tokenMultiplier);
+            }
+
+            return user.Value.Mul(accPerShare).Div(tokenMultiplier)
+                .Sub(userRewardDebt);
         }
     }
 }
