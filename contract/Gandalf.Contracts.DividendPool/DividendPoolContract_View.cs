@@ -44,7 +44,6 @@ namespace Gandalf.Contracts.DividendPoolContract
                     : currentBlockHeight > activityEndBlockHeight
                         ? activityEndBlockHeight
                         : currentBlockHeight;
-                endBlock = endBlock < pool.LastRewardBlock ? pool.LastRewardBlock : endBlock;
                 var multiplier = endBlock > startBlock ? endBlock.Sub(startBlock) : 0;
                 foreach (var tokenSymbol in tokenList)
                 {
