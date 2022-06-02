@@ -32,13 +32,11 @@ namespace Gandalf.Contracts.DividendPoolContract
             var tokenList = State.TokenList.Value.Value;
 
             var pendingOutput = new PendingOutput();
-
-            var number = Context.CurrentHeight > State.EndBlock.Value
-                ? State.EndBlock.Value
-                : Context.CurrentHeight;
+            var number = Context.CurrentHeight;
             if (number >= pool.LastRewardBlock && !pool.TotalAmount.Equals(0))
             {
-                var multiplier = number.Sub(pool.LastRewardBlock);
+                number = number > State.EndBlock.Value ? State.EndBlock.Value : number;
+                var multiplier = number > pool.LastRewardBlock? number.Sub(pool.LastRewardBlock) : 0;
                 for (int i = 0; i < tokenList.Count; i++)
                 {
                     var tokenSymbol = tokenList[i];
