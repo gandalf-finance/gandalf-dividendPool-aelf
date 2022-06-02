@@ -30,16 +30,24 @@ namespace Gandalf.Contracts.DividendPoolContract
             var pool = State.PoolInfoList.Value.Value[input.Pid];
             var user = State.UserInfo[input.Pid][input.User];
             var tokenList = State.TokenList.Value.Value;
-
             var pendingOutput = new PendingOutput();
-            var number = Context.CurrentHeight;
-            if (number >= pool.LastRewardBlock && !pool.TotalAmount.Equals(0))
+            if (!pool.TotalAmount.Equals(0))
             {
-                number = number > State.EndBlock.Value ? State.EndBlock.Value : number;
-                var multiplier = number > pool.LastRewardBlock? number.Sub(pool.LastRewardBlock) : 0;
-                for (int i = 0; i < tokenList.Count; i++)
+                var currentBlockHeight = Context.CurrentHeight;
+                var activityStartBlockHeight = State.StartBlock.Value;
+                var activityEndBlockHeight = State.EndBlock.Value;
+                var startBlock = pool.LastRewardBlock > activityStartBlockHeight
+                    ? pool.LastRewardBlock
+                    : activityStartBlockHeight;
+                var endBlock = pool.LastRewardBlock > activityEndBlockHeight
+                    ? activityEndBlockHeight
+                    : currentBlockHeight > activityEndBlockHeight
+                        ? activityEndBlockHeight
+                        : currentBlockHeight;
+                endBlock = endBlock < pool.LastRewardBlock ? pool.LastRewardBlock : endBlock;
+                var multiplier = endBlock > startBlock ? endBlock.Sub(startBlock) : 0;
+                foreach (var tokenSymbol in tokenList)
                 {
-                    var tokenSymbol = tokenList[i];
                     var amount = GetUserReward(input.Pid, pool, user, tokenSymbol, multiplier, input.User);
                     pendingOutput.Tokens.Add(tokenSymbol);
                     pendingOutput.Amounts.Add(amount);
