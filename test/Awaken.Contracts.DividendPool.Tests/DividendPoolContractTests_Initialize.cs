@@ -4,10 +4,10 @@ using AElf.Contracts.MultiToken;
 using AElf.ContractTestBase.ContractTestKit;
 using AElf.Cryptography.ECDSA;
 using AElf.Types;
-using Gandalf.Contracts.DividendPoolContract;
+using Awaken.Contracts.DividendPoolContract;
 using Shouldly;
 
-namespace Gandalf.Contracts.DividendPool
+namespace Awaken.Contracts.DividendPool
 {
     public partial class DividendPoolContractTests
     {

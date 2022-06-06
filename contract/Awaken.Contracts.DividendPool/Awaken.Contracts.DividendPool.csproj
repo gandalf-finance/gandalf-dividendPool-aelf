@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <!-- The root namespace -->
-        <RootNamespace>Gandalf.Contracts.DividendPoolContract</RootNamespace>
+        <RootNamespace>Awaken.Contracts.DividendPoolContract</RootNamespace>
         <!-- Mark this project as a contract -->
         <IsContract>true</IsContract>
     </PropertyGroup>
@@ -26,7 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="obj\Debug\netstandard2.0\Gandalf.Contracts.DividendPool.csproj.AssemblyReference.cache" />
+      <Content Include="obj\Debug\netstandard2.0\Awaken.Contracts.DividendPool.csproj.AssemblyReference.cache" />
     </ItemGroup>
     
 </Project>

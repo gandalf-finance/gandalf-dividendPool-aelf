@@ -1,9 +1,9 @@
 using AElf.Boilerplate.TestBase;
 using AElf.Contracts.MultiToken;
 using AElf.Cryptography.ECDSA;
-using Gandalf.Contracts.DividendPoolContract;
+using Awaken.Contracts.DividendPoolContract;
 
-namespace Gandalf.Contracts.DividendPool
+namespace Awaken.Contracts.DividendPool
 {
     public class DividendPoolContractTestBase : DAppContractTestBase<DividendPoolContractTestModule>
     {

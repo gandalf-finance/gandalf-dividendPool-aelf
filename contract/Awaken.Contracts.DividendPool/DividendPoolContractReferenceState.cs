@@ -1,6 +1,6 @@
 using AElf.Contracts.MultiToken;
 
-namespace Gandalf.Contracts.DividendPoolContract
+namespace Awaken.Contracts.DividendPoolContract
 {
     public partial class DividendPoolContractState
     {

@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\contract\Gandalf.Contracts.DividendPool\Gandalf.Contracts.DividendPool.csproj">
+        <ProjectReference Include="..\..\contract\Awaken.Contracts.DividendPool\Awaken.Contracts.DividendPool.csproj">
             <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
             <OutputItemType>Contract</OutputItemType>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

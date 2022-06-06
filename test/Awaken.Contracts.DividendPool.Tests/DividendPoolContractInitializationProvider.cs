@@ -3,7 +3,7 @@ using AElf.Boilerplate.TestBase;
 using AElf.Kernel.SmartContract.Application;
 using AElf.Types;
 
-namespace Gandalf.Contracts.DividendPool
+namespace Awaken.Contracts.DividendPool
 {
     public class DividendPoolContractInitializationProvider : IContractInitializationProvider
     {
@@ -13,6 +13,6 @@ namespace Gandalf.Contracts.DividendPool
         }
 
         public Hash SystemSmartContractName { get; } = DAppSmartContractAddressNameProvider.Name;
-        public string ContractCodeName { get; } = "Gandalf.Contracts.DividendPoolContract";
+        public string ContractCodeName { get; } = "Awaken.Contracts.DividendPoolContract";
     }
 }

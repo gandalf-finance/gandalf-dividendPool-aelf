@@ -4,14 +4,14 @@ using AElf.CSharp.Core;
 using AElf.Kernel;
 using AElf.Kernel.Blockchain.Application;
 using AElf.Types;
-using Gandalf.Contracts.DividendPoolContract;
+using Awaken.Contracts.DividendPoolContract;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Volo.Abp.Threading;
 using Xunit;
 
-namespace Gandalf.Contracts.DividendPool
+namespace Awaken.Contracts.DividendPool
 {
     public partial class DividendPoolContractTests : DividendPoolContractTestBase
     {

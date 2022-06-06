@@ -3,7 +3,7 @@ using AElf.Sdk.CSharp;
 using AElf.Sdk.CSharp.State;
 using Google.Protobuf.WellKnownTypes;
 
-namespace Gandalf.Contracts.DividendPoolContract
+namespace Awaken.Contracts.DividendPoolContract
 {
     /// <summary>
     /// The C# implementation of the contract defined in dividend_pool_contract.proto that is located in the "protobuf"

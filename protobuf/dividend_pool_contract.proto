@@ -4,9 +4,9 @@
  *
  * You can use this as a basic template for new contracts.
  * 
- * When building Boilerplate or the contract project located in the "../contract/Gandalf.Contracts.DividendPool/" 
+ * When building Boilerplate or the contract project located in the "../contract/Awaken.Contracts.DividendPool/" 
  * protoc (the protobuf compiler) will be invoked and this file will produce a .c.cs file and .g.cs file, in the 
- * "../contract/Gandalf.Contracts.DividendPool/Protobuf/Generated/" folder. 
+ * "../contract/Awaken.Contracts.DividendPool/Protobuf/Generated/" folder. 
  */
 
 // the version of the language, use proto3 for contracts
@@ -22,12 +22,12 @@ import "google/protobuf/wrappers.proto";
 
 // the name of the C# namespace in which the contract code will be,
 // generated code will also be in this namespace.
-option csharp_namespace = "Gandalf.Contracts.DividendPoolContract";
+option csharp_namespace = "Awaken.Contracts.DividendPoolContract";
 
 // the contract definition: a gRPC service definition.
 service DividendPoolContract {
 
-  option (aelf.csharp_state) = "Gandalf.Contracts.DividendPoolContract.DividendPoolContractState";
+  option (aelf.csharp_state) = "Awaken.Contracts.DividendPoolContract.DividendPoolContractState";
 
   // Action
   rpc Initialize(InitializeInput) returns(google.protobuf.Empty){

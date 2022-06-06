@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp;
 using Volo.Abp.Modularity;
 
-namespace Gandalf.Contracts.DividendPool
+namespace Awaken.Contracts.DividendPool
 {
     [DependsOn(typeof(MainChainDAppContractTestModule))]
     public class DividendPoolContractTestModule : MainChainDAppContractTestModule

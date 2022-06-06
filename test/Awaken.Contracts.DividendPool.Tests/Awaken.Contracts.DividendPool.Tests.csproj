@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>Gandalf.Contracts.DividendPool</RootNamespace>
+    <RootNamespace>Awaken.Contracts.DividendPool</RootNamespace>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -41,7 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\contract\Gandalf.Contracts.DividendPool\Gandalf.Contracts.DividendPool.csproj" />
+    <ProjectReference Include="..\..\contract\Awaken.Contracts.DividendPool\Awaken.Contracts.DividendPool.csproj" />
     <ProjectReference Include="..\..\src\AElf.Boilerplate.TestBase\AElf.Boilerplate.TestBase.csproj" />
   </ItemGroup>
 

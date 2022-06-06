@@ -2,7 +2,7 @@ using AElf.CSharp.Core;
 using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 
-namespace Gandalf.Contracts.DividendPoolContract
+namespace Awaken.Contracts.DividendPoolContract
 {
     public partial class DividendPoolContract
     {

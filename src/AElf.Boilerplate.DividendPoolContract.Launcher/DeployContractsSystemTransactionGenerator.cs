@@ -49,7 +49,7 @@ namespace AElf.Boilerplate.DividendPoolContract.Launcher
         private byte[] GetContractCodes()
         {
             return ContractsDeployer.GetContractCodes<DeployContractsSystemTransactionGenerator>(_contractOptions
-                .GenesisContractDir)["Gandalf.Contracts.DividendPoolContract"];
+                .GenesisContractDir)["Awaken.Contracts.DividendPoolContract"];
         }
     }
 }
