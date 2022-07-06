@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <!-- The root namespace -->
         <RootNamespace>Awaken.Contracts.DividendPoolContract</RootNamespace>
         <!-- Mark this project as a contract -->
@@ -24,9 +24,4 @@
             <Link>Protobuf\Proto\reference\token_contract.proto</Link>
         </ContractReference>
     </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="obj\Debug\netstandard2.0\Awaken.Contracts.DividendPool.csproj.AssemblyReference.cache" />
-    </ItemGroup>
-    
 </Project>
