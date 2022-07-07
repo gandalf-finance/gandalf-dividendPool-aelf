@@ -354,6 +354,13 @@ namespace Awaken.Contracts.DividendPoolContract
             MassUpdatePools();
             return new Empty();
         }
+        
+        public override Empty SetOwner(Address input)
+        {
+            AssertSenderIsOwner();
+            State.Owner.Value = input;
+            return new Empty(); 
+        }
 
         private void MassUpdatePools()
         {

@@ -49,6 +49,7 @@ service DividendPoolContract {
   rpc Deposit(TokenOptionInput) returns(google.protobuf.Empty) {}
 
   rpc Withdraw(TokenOptionInput) returns(google.protobuf.Empty){}
+  rpc SetOwner(aelf.Address) returns (google.protobuf.Empty) {}
 
   //    View
   rpc Pending(PendingInput) returns(PendingOutput){
